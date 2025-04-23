@@ -38,7 +38,8 @@ ui <- fluidPage(
     ),
     mainPanel(
       plotOutput("resultsPlot"),
-      plotOutput("effectPlot")
+      plotOutput("effectPlot"),
+      verbatimTextOutput("console")  
     )
   )
 )
@@ -90,6 +91,9 @@ server <- function(input, output) {
     
     fit_hier <- lmer(thk ~ visit_c * drug_num + (1 | subj) + (1 + visit_c:drug_num || roi), data = df, REML = FALSE)
     beta_fixed <- fixef(fit_hier)["visit_c:drug_num"]
+    coef_tbl <- summary(fit_hier)$coefficients
+    p_global <- coef_tbl["visit_c:drug_num", "Pr(>|t|)"]
+    sig_pooled <- (p_global < 0.05)
     pooled_df <- ranef(fit_hier)$roi %>%
       as_tibble(rownames="ROI") %>%
       transmute(ROI = as.integer(ROI), slope_pooled = `visit_c:drug_num` + beta_fixed)
@@ -155,6 +159,44 @@ server <- function(input, output) {
     output$effectPlot <- renderPlot({
       p4
     })
+    
+    output$console <- renderPrint({
+      cat("Simulation Diagnostics:\n")
+      cat(sprintf("Pooled model global test p = %.3f → %s\n",
+                  p_global,
+                  if (sig_pooled) "SIGNIFICANT" else "not significant"))
+      
+      cat(sprintf("\nUnpooled detection:\n • raw p<.05: %.1f%%\n • FDR<.05: %.1f%%\n",
+                  det_raw * 100, det_fdr * 100))
+      
+      cat(sprintf("\nRMSE:\n • Unpooled: %.3f\n • Pooled:   %.3f\n",
+                  rmse_unp, rmse_pld))
+      
+      cat(sprintf("\nGlobal effect recovery:\n"))
+      cat(sprintf("  True γ:     %.3f\n", stan_data$gamma_global))
+      cat(sprintf("  Pooled:     %.3f  (Bias %+ .3f)\n",
+                  beta_fixed, beta_fixed - stan_data$gamma_global))
+      cat(sprintf("  Unpooled:   %.3f  (Bias %+ .3f)\n\n",
+                  mean(compare_df$slope_unp, na.rm = TRUE),
+                  mean(compare_df$slope_unp, na.rm = TRUE) - stan_data$gamma_global))
+      
+      cat("=== Summary of Pooled Mixed Model ===\n")
+      print(summary(fit_hier))
+      
+      # Optional: Show one unpooled model summary
+      example_model <- tryCatch(
+        lmer(thk ~ visit_c * drug_num + (1|subj), data = filter(df, roi == 1)),
+        error = function(e) NULL
+      )
+      if (!is.null(example_model)) {
+        cat("\n=== Summary of Unpooled Model for ROI 1 ===\n")
+        print(summary(example_model))
+      } else {
+        cat("\n(Unpooled model for ROI 1 failed to converge or fit.)\n")
+      }
+    })
+    
+    
   })
 }
 
