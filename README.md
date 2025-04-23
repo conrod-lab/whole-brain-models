@@ -1,5 +1,7 @@
 # ROI Covariance Modelling
 
+![Alt text](output_example.png)
+
 A simulation framework for generating and analyzing longitudinal cortical thickness data with realistic ROI-by-ROI covariance structures. Compare per-ROI (massive univariate, but multilevel at the subject level) vs pooled multilevel mixed-effects models.
 
 ## Table of Contents
