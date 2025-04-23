@@ -77,7 +77,7 @@ These let you stress-test your analysis pipeline under more or less signal, vary
 Run the scripts interactively in R or from the command line:
 
 ```bash
-Rscript roi_cov_modelling_v3.R
+Rscript roi_cov_modelling.R
 Rscript roi_cov_plot.R
 ```
 
