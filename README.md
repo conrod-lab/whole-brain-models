@@ -33,14 +33,14 @@ This repository contains code to simulate longitudinal cortical‐thickness data
 ##  Quick Start
 1. Install Dependencies
 This project uses R (≥ 4.0) + CmdStanR. From an R console:
-
+```
 install.packages(c(
   "cmdstanr", "posterior", "reshape2", "dplyr",
   "tidyr",    "ggplot2",  "lme4",     "lmerTest",
   "purrr",    "scales",   "cowplot"
 ))
 cmdstanr::install_cmdstan()
-
+```
 Running roi_cov_modelling_v3.R will:
 
 1. Simulate one fixed-param draw of Y[s,v,r] using your chosen Stan program.
@@ -81,16 +81,16 @@ Rscript roi_cov_plot.R
 
 ## Scripts
 
-- `sim_cortical_thickness2.stan`: Stan model for simulating longitudinal cortical thickness data.
-- `roi_cov_modelling_v3.R`: Simulate data, fit both per-ROI (unpooled) and pooled multilevel models, compare detection rates and slope recovery, and produce diagnostic plots.
+- `sim_cortical_thickness.stan`: Stan model for simulating longitudinal cortical thickness data.
+- `roi_cov_modelling.R`: Simulate data, fit both per-ROI (unpooled) and pooled multilevel models, compare detection rates and slope recovery, and produce diagnostic plots.
 - `roi_cov_plot.R`: Generate quick summary plots of global aging and baseline drug effects.
 
 ## Project Structure
 
 ```
 .
-├── sim_cortical_thickness2.stan  # Stan simulation model
-├── roi_cov_modelling_v3.R       # Main analysis and comparison script
+├── sim_cortical_thickness.stan  # Stan simulation model
+├── roi_cov_modelling.R       # Main analysis and comparison script
 └── roi_cov_plot.R               # Quick visualization script
 ```
 
