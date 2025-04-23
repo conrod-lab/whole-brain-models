@@ -43,7 +43,7 @@ install.packages(c(
 ))
 cmdstanr::install_cmdstan()
 ```
-Running roi_cov_modelling_v3.R will:
+Running roi_cov_modelling.R will:
 
 1. Simulate one fixed-param draw of Y[s,v,r] using your chosen Stan program.
 
