@@ -66,8 +66,9 @@ server <- function(input, output) {
       gamma_drug_int = input$gamma_drug_int,
       gamma_global   = input$gamma_global
     )
-    
+    withProgress(message = 'Running simulation...', value = 0.5, {
     fit <- mod$sample(data = stan_data, chains = 1, iter_sampling = 1, iter_warmup = 0, fixed_param = TRUE, refresh = 0)
+    })
     draws <- fit$draws(format="draws_array")
     
     drug_vec <- as.integer(draws[1,1, grep("^drug\\[", dimnames(draws)$variable)])

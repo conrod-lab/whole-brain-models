@@ -18,14 +18,19 @@ mod <- cmdstan_model("sim_cortical_thickness.stan")
 
 # ===============================================================
 # 2)  Hyper-parameters (low-power scenario) ---------------------
+n_subj <- 50         # fewer subjects → low power
+n_roi  <- 200         # many ROIs → harsh multiple testing
+n_net  <- 5          # assume 5 functional networks
+
 stan_data <- list(
-  n_subj         = 150,      # fewer subjects → low power
-  n_roi          = 200,     # many ROIs → harsh multiple testing
+  n_subj         = n_subj,  # fewer subjects → low power
+  n_roi          = n_roi,   # many ROIs → harsh multiple testing
   n_visit        = 3,       # three repeated visits
   
   # spatial/temporal smoothing
-  n_net          = 5,       # assume 5 functional networks
-  roi_net        = sample(1:5, 200, replace=TRUE),  # random assignment of each ROI to a network
+  n_net          = n_net,   # assume 5 functional networks
+  # Note for roi_net: it has to match n_roi value
+  roi_net        = sample(1:n_net, n_roi, replace=TRUE),  # random assignment of each ROI to a network 
   rho_intra      = 0.6,     # within-network ROI corr
   rho_inter      = 0.2,     # between-network ROI corr
   rho_visit      = 0.3,     # AR(1) temporal corr
@@ -40,7 +45,7 @@ stan_data <- list(
   # fixed effects
   gamma_time     = -0.10,   # global thinning per unit time
   gamma_drug_int =  0.20,   # drug main‐effect on intercept
-  gamma_global   = -0.05    # Drug×Time interaction
+  gamma_global   = -0.3     # Drug×Time interaction
 )
 
 # ===============================================================
