@@ -18,7 +18,7 @@ This project requires:
 
 - R (>= 4.0)
 - CmdStanR (and CmdStan)
-- R packages: cmdstanr, posterior, reshape2, dplyr, tidyr, ggplot2, lme4, lmerTest, purrr, scales, cowplot
+- R packages: cmdstanr, posterior, reshape2, dplyr, tidyr, ggplot2, lme4, lmerTest, purrr, scales, cowplot, shiny
 
 Refer to [Quick Start](#quick-start) for installation commands.
 
@@ -37,7 +37,7 @@ This project uses R (≥ 4.0) + CmdStanR. From an R console:
 install.packages(c(
   "cmdstanr", "posterior", "reshape2", "dplyr",
   "tidyr",    "ggplot2",  "lme4",     "lmerTest",
-  "purrr",    "scales",   "cowplot"
+  "purrr",    "scales",   "cowplot", "shiny",
 ))
 cmdstanr::install_cmdstan()
 ```
