@@ -14,7 +14,7 @@ library(cowplot)
 
 # ===============================================================
 # 1)  Compile Stan generator ------------------------------------
-mod <- cmdstan_model("sim_cortical_thickness2.stan")   # your updated Stan
+mod <- cmdstan_model("sim_cortical_thickness.stan")   # your updated Stan
 
 # ===============================================================
 # 2)  Hyper-parameters (low-power scenario) ---------------------

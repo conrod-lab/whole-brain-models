@@ -14,7 +14,7 @@ library(cowplot)       # plot_grid()
 
 # ===============================================================
 # 1)  Compile Stan generator ------------------------------------
-mod <- cmdstan_model("sim_cortical_thickness2.stan")
+mod <- cmdstan_model("sim_cortical_thickness.stan")
 
 # ===============================================================
 # 2)  Hyper-parameters (low-power scenario) ---------------------
@@ -114,6 +114,9 @@ pooled_df <- ranef(fit_hier)$roi %>%
 
 # ===============================================================
 # 7) Massive-univariate (unpooled) + FDR -------------------------
+# You might get singular fit warnings. Ask yourself why this might
+# be the case and how can you erase this warning by modifying 
+# the generated data
 unpooled <- map_dfr(
   1:stan_data$n_roi,
   function(r) {
@@ -152,6 +155,23 @@ det_raw <- mean(compare_df$p_unp < 0.05, na.rm=TRUE)
 det_fdr <- mean(compare_df$sig_fdr,   na.rm=TRUE)
 det_pooled <- 1  # by design we detect the global effect
 
+## pooled: did we detect the global Drug×Time effect?  ----
+coef_tbl <- summary(fit_hier)$coefficients
+p_global <- coef_tbl["visit_c:drug_num", "Pr(>|t|)"]
+sig_pooled <- (p_global < 0.05)
+
+cat(sprintf("Pooled model global test p = %.3f → %s\n",
+            p_global,
+            if (sig_pooled) "SIGNIFICANT" else "not significant"))
+
+
+## unpooled: % of ROIs detected (before & after FDR)  ----
+det_raw  <- mean(compare_df$p_unp  < 0.05, na.rm=TRUE)
+det_fdr  <- mean(compare_df$sig_fdr,        na.rm=TRUE)
+
+cat(sprintf("Unpooled detection:\n • raw p<.05: %.1f%%\n • FDR<.05: %.1f%%\n",
+            det_raw*100, det_fdr*100))
+
 cat(sprintf(
   "Detection rates:\n • raw per‐ROI p<.05: %.1f%%\n • FDR<.05: %.1f%%\n • pooled: 100%%\n",
   det_raw*100, det_fdr*100
@@ -175,13 +195,23 @@ p1 <- ggplot(compare_df,
   labs(title="Unpooled vs True", color="sig_FDR") +
   theme_minimal()
 
-p2 <- tibble(
-  Method=c("Unpooled p<.05","Unpooled FDR","Pooled"),
-  Detected=c(det_raw, det_fdr, det_pooled)
-) %>% ggplot(aes(Method,Detected,fill=Method))+
-  geom_col()+
-  scale_y_continuous(labels=percent_format(1),limits=c(0,1))+
-  labs(title="% ROIs detected")
+det_df <- tibble(
+  Method = c("Pooled global", "Unpooled p<.05", "Unpooled FDR"),
+  Detected = c(
+    as.numeric(sig_pooled),
+    det_raw,
+    det_fdr
+  )
+)
+
+
+p2 <- ggplot(det_df, aes(Method, Detected, fill=Method))+
+  geom_col(width=0.6)+
+  scale_y_continuous(labels = scales::percent_format(1), limits=c(0,1))+
+  labs(title="% Effects Detected",
+       y="% tests significant", x=NULL) +
+  theme_minimal() +
+  theme(legend.position="none")
 
 p3 <- tibble(
   Method=c("Unpooled","Pooled"),
