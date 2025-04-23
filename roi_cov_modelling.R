@@ -19,7 +19,7 @@ mod <- cmdstan_model("sim_cortical_thickness.stan")
 # ===============================================================
 # 2)  Hyper-parameters (low-power scenario) ---------------------
 stan_data <- list(
-  n_subj         = 20,      # fewer subjects → low power
+  n_subj         = 150,      # fewer subjects → low power
   n_roi          = 200,     # many ROIs → harsh multiple testing
   n_visit        = 3,       # three repeated visits
   
